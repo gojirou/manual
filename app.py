@@ -1,5 +1,4 @@
 import streamlit as st
-import sqlite3
 import pandas as pd
 import os
 
@@ -342,24 +341,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================================================================
-# DB関数
+# データ読み込み関数
 # =========================================================================
-@st.cache_resource
-def get_db_connection():
-    return sqlite3.connect(DB_PATH, check_same_thread=False)
+DATA_PATH = "data.json"
 
-def check_db_exists():
-    return os.path.exists(DB_PATH)
+def check_data_exists():
+    return os.path.exists(DATA_PATH)
 
 from thefuzz import fuzz
 
 @st.cache_data
 def load_all_manuals():
-    if not check_db_exists():
+    if not check_data_exists():
         return pd.DataFrame()
-    conn = get_db_connection()
-    query = "SELECT id, brand, car_name, accessory_name, part_number, file_name, manual_url FROM manuals WHERE file_name NOT IN ('取扱書', '型紙')"
-    return pd.read_sql_query(query, conn)
+    return pd.read_json(DATA_PATH)
 
 def fetch_search_results(search_query):
     df = load_all_manuals()
@@ -391,50 +386,6 @@ def fetch_search_results(search_query):
     # スコアが高いものをフィルタリング（例: 70点以上）し、スコア順にソート
     results = df[df['score'] >= 70].sort_values(by='score', ascending=False).head(100)
     return results
-
-def get_favorites():
-    if not check_db_exists():
-        return pd.DataFrame()
-    conn = get_db_connection()
-    query = """
-        SELECT m.id, m.brand, m.car_name, m.accessory_name, m.manual_url
-        FROM manuals m
-        JOIN favorites f ON m.id = f.manual_id
-    """
-    return pd.read_sql_query(query, conn)
-
-def add_favorite(manual_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT OR IGNORE INTO favorites (manual_id) VALUES (?)", (manual_id,))
-    conn.commit()
-
-def remove_favorite(manual_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM favorites WHERE manual_id = ?", (manual_id,))
-    conn.commit()
-
-def add_history(manual_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO history (manual_id) VALUES (?)", (manual_id,))
-    # 履歴が多すぎないように古いものを削除（最新50件を残すなど）
-    conn.commit()
-
-def get_history():
-    if not check_db_exists():
-        return pd.DataFrame()
-    conn = get_db_connection()
-    query = """
-        SELECT m.id, m.brand, m.car_name, m.accessory_name, m.manual_url, MAX(h.accessed_at) as last_access
-        FROM manuals m
-        JOIN history h ON m.id = h.manual_id
-        GROUP BY m.id
-        ORDER BY last_access DESC
-        LIMIT 10
-    """
-    return pd.read_sql_query(query, conn)
 
 # =========================================================================
 # UI 構築
@@ -477,7 +428,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-if not check_db_exists():
+if not check_data_exists():
     st.warning("データベースが見つかりません。まずはローカルでデータを構築するため、スクレイパーを実行してください。")
     if st.button("データを更新する (スクレイパー実行)"):
         with st.spinner("データを取得中です...しばらくお待ちください。"):
