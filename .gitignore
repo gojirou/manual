@@ -1,13 +1,4 @@
-venv/
 .venv/
+venv/
+*.log
 __pycache__/
-.env
-*.db
-*.pyc
-debug_run.log
-download_js.py
-scraper.py
-scraper_proto.py
-supplies_full.js
-toyota-manual-app
-voice_component/
