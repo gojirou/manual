@@ -6,7 +6,7 @@ import os
 st.set_page_config(page_title="トヨタ一般用品 取付要領書検索", page_icon="🚗", layout="wide")
 
 DB_PATH = "toyota_manuals.db"
-APP_PASSWORD = "komaya8139"  # ← パスワードをここで変更してください
+APP_PASSWORD = "1111"  # ← パスワードをここで変更してください
 
 # =========================================================================
 # カスタムCSS
@@ -305,26 +305,30 @@ st.markdown("""
     /* スマホ・タブレット用レスポンシブ対応 */
     @media (max-width: 768px) {
         .block-container {
-            padding-top: 1rem !important;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
+            padding-top: 3.5rem !important; /* ヘッダーメニューとの被りを防ぐ */
+            padding-left: 1.25rem !important;
+            padding-right: 1.25rem !important;
+            padding-bottom: 3rem !important;
         }
         .hero-section {
-            margin-left: -1rem;
-            margin-right: -1rem;
-            padding-left: 1rem;
-            padding-right: 1rem;
-            padding-top: 16px;
+            margin-left: -1.25rem;
+            margin-right: -1.25rem;
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+            padding-top: 10px;
             padding-bottom: 24px;
         }
         .main-title {
-            font-size: 1.8rem;
+            font-size: 1.55rem; /* 1行に収まるようにサイズを調整 */
+            line-height: 1.3;
         }
         .result-card {
-            padding: 12px 14px;
+            padding: 14px 16px;
         }
         .item-title {
             font-size: 0.95rem;
+            line-height: 1.4;
+            margin-bottom: 4px;
         }
         .item-meta {
             flex-direction: column;
